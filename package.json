@@ -1,0 +1,42 @@
+{
+    "name": "buffer-hex-dump",
+    "version": "1.0.0",
+    "description": "Highly configurable and feature rich utility function package that generates hex dumps of Buffer objects.",
+    "main": "dist/buffer-hex-dump.js",
+    "files":
+    [
+        "dist/buffer-hex-dump.js",
+        "dist/buffer-hex-dump.d.ts",
+        "dist/text-stream.js",
+        "dist/text-stream.d.ts"
+    ],
+    "scripts": {
+        "bootstrap": "npm install --production",
+        "bootstrap-dev": "npm install",
+        "build": "tsc",
+        "build-dev": "tsc -p tsconfig.debug.json",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "clean": "rm -rfv ./dist/*",
+        "purge": "rm -rfv ./dist && rm -rfv ./node_modules && rm -fv package-lock.json"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/orcun-gokbulut/hex-dump.git"
+    },
+    "keywords": [
+        "hex",
+        "dump"
+    ],
+    "author": "Y. Orçun GÖKBULUT",
+    "license": "GPL-3.0",
+    "bugs": {
+        "url": "https://github.com/orcun-gokbulut/hex-dump/issues"
+    },
+    "homepage": "https://github.com/orcun-gokbulut/hex-dump#readme",
+    "dependencies": {
+        "colors": "^1.4.0"
+    },
+    "devDependencies": {
+        "@types/node": "^17.0.8"
+    }
+}
