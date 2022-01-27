@@ -1,42 +1,51 @@
 {
     "name": "buffer-hex-dump",
+    "publisher": "orcun.gokbulut",
     "version": "1.0.0",
     "description": "Highly configurable and feature rich utility function package that generates hex dumps of Buffer objects.",
+    "author": {
+        "name": "Y. Orçun GÖKBULUT",
+        "email": "orcun.gokbulut@gmail.com",
+        "url": "https://www.github.com/orcun-gokbulut"
+    },
+    "license": "GPL-3.0",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/orcun-gokbulut/hex-dump.git"
+    },
+    "bugs": {
+        "url": "https://github.com/orcun-gokbulut/hex-dump/issues",
+        "email": "orcun.gokbulut@gmail.com"
+    },
+    "homepage": "https://github.com/orcun-gokbulut/hex-dump#readme",
+    "keywords": [
+        "hex",
+        "dump"
+    ],
     "main": "dist/buffer-hex-dump.js",
-    "files":
-    [
+    "files": [
         "dist/buffer-hex-dump.js",
         "dist/buffer-hex-dump.d.ts",
         "dist/text-stream.js",
         "dist/text-stream.d.ts"
     ],
     "scripts": {
-        "bootstrap": "npm install --production",
-        "bootstrap-dev": "npm install",
+        "bootstrap": "npm install",
+        "bootstrap-prod": "npm install --production",
         "build": "tsc",
         "build-dev": "tsc -p tsconfig.debug.json",
+        "lint": "eslint src --ext ts",
         "test": "echo \"Error: no test specified\" && exit 1",
         "clean": "rm -rfv ./dist/*",
         "purge": "rm -rfv ./dist && rm -rfv ./node_modules && rm -fv package-lock.json"
     },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/orcun-gokbulut/hex-dump.git"
-    },
-    "keywords": [
-        "hex",
-        "dump"
-    ],
-    "author": "Y. Orçun GÖKBULUT",
-    "license": "GPL-3.0",
-    "bugs": {
-        "url": "https://github.com/orcun-gokbulut/hex-dump/issues"
-    },
-    "homepage": "https://github.com/orcun-gokbulut/hex-dump#readme",
     "dependencies": {
         "colors": "^1.4.0"
     },
     "devDependencies": {
-        "@types/node": "^17.0.8"
+        "@types/node": "^17.0.8",
+        "@typescript-eslint/eslint-plugin": "^5.10.1",
+        "@typescript-eslint/parser": "^5.10.1",
+        "eslint": "^8.7.0"
     }
 }

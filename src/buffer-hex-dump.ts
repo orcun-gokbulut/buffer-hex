@@ -199,16 +199,17 @@ export function dump(buffer : Buffer, offset? : number, count? : number, options
 {
     const normOptions = normalizeOptions(options);
 
-    let output = new TextStream();
+    const output = new TextStream();
 
-    for (let y = 0; y < buffer.length / normOptions.rowSize!; y++)
+    const rowCount = buffer.length / normOptions.rowSize!;
+    for (let y = 0; y < rowCount; y++)
     {
         // OFFSET
         if (normOptions.offsetEnabled!)
         {
             const offset = y * normOptions.rowSize!;
-            const offsetUpper = Math.floor(offset / 256)
-            const offsetLower = offset - offsetUpper
+            const offsetUpper = Math.floor(offset / 256);
+            const offsetLower = offset - offsetUpper;
 
             let offsetOutput = "";
 
@@ -219,7 +220,7 @@ export function dump(buffer : Buffer, offset? : number, count? : number, options
 
             offsetOutput += normOptions.offsetSeparator!;
 
-            offsetText = offsetLower.toString(16).padStart(4, '0')
+            offsetText = offsetLower.toString(16).padStart(4, '0');
             if (normOptions.uppercase)
                 offsetText = offsetText.toUpperCase();
             offsetOutput += offsetText;
@@ -238,17 +239,17 @@ export function dump(buffer : Buffer, offset? : number, count? : number, options
             let hexOutput = "";
             for (let x = 0; x < normOptions.rowSize!; x++)
             {
-                if (x != 0)
+                if (x !== 0)
                 {
-                    if (normOptions.wordSize! != 0 && (x % normOptions.wordSize!) == 0)
+                    if (normOptions.wordSize! !== 0 && (x % normOptions.wordSize!) === 0)
                         hexOutput += normOptions.hexWordSeparator!;
 
-                    if (normOptions.groupSize != 0 && ((x / (normOptions.wordSize!)) % normOptions.groupSize!) == 0)
+                    if (normOptions.groupSize !== 0 && ((x / (normOptions.wordSize!)) % normOptions.groupSize!) === 0)
                         hexOutput += normOptions.hexGroupSeparator!;
                 }
 
                 const index = y * normOptions.rowSize! + x;
-                let value = buffer.at(index) as number;
+                const value = buffer[index] as number;
                 if (index < buffer.length)
                 {
                     if (normOptions.uppercase!)
@@ -278,12 +279,12 @@ export function dump(buffer : Buffer, offset? : number, count? : number, options
         {
             for (let x = 0; x < normOptions.rowSize!; x++)
             {
-                if (x != 0)
+                if (x !== 0)
                 {
-                    if (normOptions.wordSize! != 0 && (x % normOptions.wordSize!) == 0)
+                    if (normOptions.wordSize! !== 0 && (x % normOptions.wordSize!) === 0)
                         output.write(normOptions.textWordSeparator!, normOptions.textStyle!);
 
-                    if (normOptions.groupSize != 0 && ((x / (normOptions.wordSize!)) % normOptions.groupSize!) == 0)
+                    if (normOptions.groupSize !== 0 && ((x / (normOptions.wordSize!)) % normOptions.groupSize!) === 0)
                         output.write(normOptions.textGroupSeparator!, normOptions.textStyle!);
                 }
 
@@ -291,18 +292,19 @@ export function dump(buffer : Buffer, offset? : number, count? : number, options
 
                 let value : number;
                 if (index < buffer.length)
-                    value = buffer.at(index) as number;
+                    value = buffer[index] as number;
                 else
                     value = 32; // Space
 
                 if (value < 32 || value >= 127)
                     output.write(normOptions.textUnrenderableCharacter!, normOptions.textUnrenderableCharacterStyle!);
                 else
-                    output.write(String.fromCharCode(value), normOptions.textStyle!)
+                    output.write(String.fromCharCode(value), normOptions.textStyle!);
             }
         }
 
-        output.write(normOptions.newLineCharacter!, null);
+        if (y + 1 !== rowCount)
+            output.write(normOptions.newLineCharacter!, null);
     }
 
     return output.end();
