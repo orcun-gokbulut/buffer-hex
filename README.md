@@ -1,16 +1,16 @@
 <h1 align="center">Buffer-Hex-Dump</h1>
 <p>
-  <a href="https://www.npmjs.com/package/hex-dump" target="_blank">
-    <img alt="Version" src="https://img.shields.io/npm/v/hex-dump.svg">
+  <a href="https://www.npmjs.com/package/buffer-hex-dump" target="_blank">
+    <img alt="Version" src="https://img.shields.io/npm/v/buffer-hex-dump.svg">
   </a>
-  <a href="https://github.com/orcun-gokbulut/hex-dump#readme" target="_blank">
+  <a href="https://github.com/orcun-gokbulut/buffer-hex-dump#readme" target="_blank">
     <img alt="Documentation" src="https://img.shields.io/badge/documentation-yes-brightgreen.svg" />
   </a>
-  <a href="https://github.com/orcun-gokbulut/hex-dump/graphs/commit-activity" target="_blank">
+  <a href="https://github.com/orcun-gokbulut/buffer-hex-dump/graphs/commit-activity" target="_blank">
     <img alt="Maintenance" src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" />
   </a>
-  <a href="https://github.com/orcun-gokbulut/hex-dump/blob/master/LICENSE" target="_blank">
-    <img alt="License: GPL--3.0" src="https://img.shields.io/github/license/orcun-gokbulut/hex-dump" />
+  <a href="https://github.com/orcun-gokbulut/buffer-hex-dump/blob/master/LICENSE" target="_blank">
+    <img alt="License: GPL--3.0" src="https://img.shields.io/github/license/orcun-gokbulut/buffer-hex-dump" />
   </a>
 </p>
 
@@ -34,69 +34,82 @@ Output is divided into 3 section; offset, hex and text.
 
 **Hex Section** (texts like 00 44 00 65  00 62 00 75) contains hexadecimal outputs of the bytes contained in this row.
 
-**Text Section** (the last section) contains ascii output of the bytes contained in current row. However if a byte cannot be displayed properly than placeholder character called unreaderable character (can be changed by Options.textUnrenderableCharacter. Default is '·') is displated.
+**Text Section** (the last section) contains ascii output of the bytes contained in current row. However if a byte cannot be displayed properly than placeholder character called unreaderable character (can be changed by BufferHexDumpOptions.textUnrenderableCharacter. Default is '·') is displated.
 
-Bytes can be combined into words and words can be grouped into groups. Options.wordSize and Options.groupSize options control word and bytes size.
+Bytes can be combined into words and words can be grouped into groups. BufferHexDumpOptions.wordSize and BufferHexDumpOptions.groupSize options control word and bytes size.
 
 For example byte sequence 00 44 00 65 00 62 00 75 00 67 00 4D 00 65 00 73;
 
-Can be displayed as 16 bit word size (Options.wordSize = 2) and without grouping (Options.groupSize = 0);
+Can be displayed as 16 bit word size (BufferHexDumpOptions.wordSize = 2) and without grouping (BufferHexDumpOptions.groupSize = 0);
 ```
 0044 0065 0062 0075 0067 004D 0065 0073
 ```
 
-Also can be displayed as 8 bit word size (Options.wordSize = 1) and grouped by 4 words (Options.groupSize = 4).
+Also can be displayed as 8 bit word size (BufferHexDumpOptions.wordSize = 1) and grouped by 4 words (BufferHexDumpOptions.groupSize = 4).
 ```raw
 00 44 00 65  00 62 00 75  00 67 00 4D  00 65 00 73
 ```
 
-## Install
+# Install
 
 ```sh
 npm install hex-dump
 ```
 
-```typescript
-import { hexDump} from "hex-dump";
-```
-
-## Simple Usage
+# Simple Usage
 Simple usage with default options. Just call hexDump function with a buffer as a parameter.
 
 ```typescript
-//Simple Usage
-import { hexDump } from "hex-dump";
+import { BufferHexDump } from "buffer-hex-dump";
 
-function onData(data : Buffer) : void
-{
-    cosole.log(hexDump(data));
+const data = Buffer.alloc(56);
+
+data.writeUInt32BE(0xf718dc1c);
+data.writeUInt32BE(0xad036ca5, 4);
+data.writeUInt32BE(0x043a8a23, 8);
+data.writeUInt32BE(0x03900e15, 12);
+data.writeUInt32BE(0xd10acaa6, 16);
+data.write("buffer-hex-dump!", 20);
+data.writeUInt32BE(0xef8445b5, 36);
+data.writeUInt32BE(0x0a7cc7eb, 40);
+data.writeUInt32BE(0x7c8ff325, 44);
+data.writeUInt32BE(0xb1d822d1, 48);
+data.writeUInt32BE(0x874930f1, 52);
+
+console.log(hexDump(data));
+```
+
+**Output:**
+```raw
+0000:0000 | F7 18 DC 1C  AD 03 6C A5  04 3A 8A 23  03 90 0E 15  D1 0A CA A6 | ···· ··l· ·:·# ···· ····
+0000:0014 | 62 75 66 66  65 72 2D 68  65 78 2D 64  75 6D 70 21  EF 84 45 B5 | buff er-h ex-d ump! ··E·
+0000:0028 | 0A 7C C7 EB  7C 8F F3 25  B1 D8 22 D1  87 49 30 F1              | ·|·· |··% ··"· ·I0·
+```
+
+# Referance
+
+## BufferHexDump.dump function
+```typescript
+export declare class BufferHexDump {
+    static dump(buffer: Buffer, offset?: number, count?: number, options?: BufferHexDumpOptions): string;
 }
 ```
 
-## Referance
-
-### hexDump function
-```typescript
-export declare function hexDump(buffer: Buffer, offset?: number, count?: number, options?: Options): string;
-```
-#### Description
+### Description
 Function creates a hexadecimal and output of the buffer contents according to given parameters.
 
-#### Parameters
-**buffer**: Target buffer that will be used to gerenerate hexadecimal output.
+### Parameters
+ - **buffer**: Target buffer that will be used to gerenerate hexadecimal output.
+ - **offset** *[optional]*: Starting index of the buffer. If not given start of the buffer will be used as start position.
+ - **count** *[optional]*: Number of bytes that will be used for output. If not given number of bytes between start possition and end of buffer will be used.
+ - **options** *[optional]*: Additional options that controls output style, format, behavior, etc. If not given default options will be used.
 
-**offset** [optional]: Starting index of the buffer. If not given start of the buffer will be used as start position.
-
-**count** [optional]: Number of bytes that will be used for output. If not given number of bytes between start possition and end of buffer will be used.
-
-**options** [optional]: Additional options that controls output style, format, behavior, etc. If not given default options will be used.
-
-#### Return
+### Return
 Generated output as string.
 
-### Options Object
+## BufferHexDumpOptions Object
 ```typescript
-export interface Options {
+export interface BufferHexDumpOptions {
     rowSize?: number;
     groupSize?: number;
     wordSize?: number;
@@ -124,124 +137,53 @@ export interface Options {
 }
 ```
 
-#### Description
-Options object contains various options that controls behavior of hexDump function such as wordSize, separator texts, styles (colors, font characteristics) and etc. 
+### Description
+BufferHexDumpOptions object contains various options that controls behavior of hexDump function such as wordSize, separator texts, styles (colors, font characteristics) and etc. 
 
 Smart defaults are already enforced when you pass this object to hexDump function. Therefore you can create this object and only define the options that you want to change, then pass it to the hexDump function.
 
-#### Members
-*rowSize* [optional, default: 20]: Number of bytes will be outputed per row.
+### Members
+- **rowSize** *[optional, default: 20]*: Number of bytes will be outputed per row.
+- **groupSize** *[optional, default: 4]*: Words per group.
+- **wordSize** *[optional, default: 1]*: Word size.
+- **styleEnabled** *[optional, default: 4]*: Enable output styles.
+- **uppercase** *[optional, default: true]*: Output hex numbers upper case.
+- **newLineCharacter** *[optional, default: '\n']*: New line character that will be added at the end of each row.
+- **offsetEnabled** *[optional, default: true]*: Enable Offset Section.
+- **offsetStyle** *[optional, default: DefaultStyle]*: Style and formatting of Offset Section. (Checkout Style object)
+- **offsetSeparator** *[optional, default: ':']*: Character that separates upper and lower 16bits of offset.
+- **offsetHexSeparator** *[optional, default: ' | ']*: Separator text between Offset Section and Hex Section.
+- **offsetHexSeperatorStyle** *[optional, default: defaultStyle]*: Style of the separator text between Offset Section and Hex Section.
+- **hexEnabled** *[optional, default: true]*: Enable Hex Section output.
+- **hexWordSeparator** *[optional, default: ' ']*: Separator text that will be used to separate words.
+- **hexGroupSeparator** *[optional, default: ' ']*: Separator text that will be used to separate groups.
+- **hexStyle** *[optional, default: defaultStyle]*: Style of Hex Section. (Checkout Style object)
+- **hexTextSeparator** *[optional, default: ' | ']*: Separator text between Hex Section and Text Section.
+- **hexTextSeparatorStyle** *[optional, default: defaultStyle]*: Style of the separator text between Hex Section and Text Section.
+- **textEnabled** *[optional, default: true]*: Enable Text Section.
+- **textStyle** *[optional, default: defaultStyle]*: Style of the Text Section. (Checkout Style Object)
+- **textWordSeparator** *[optional, default: ' ']*: Separator text that will be used to separate words.
+- **textGroupSeparator** *[optional, default: ' ']*: Separator text that will be used to separate groups.
+- **textUnrenderableCharacter** *[optional, default: '·']*: Placeholder character for unrenderable characters. Such as newline, backspace, null, bell, etc.
+- **textUnrenderableCharacterStyle** *[optional, default: dimTextStyle]*: Style of the unrenderable chracters.
 
-*groupSize* [optional, default: 4]: Words per group.
+## External Structures
 
-*wordSize* [optional, default: 1]: Word size.
+- **TerminalColor** Enumerator - (https://github.com/orcun-gokbulut/terminal-styler#terminalcolor-enumerator)
+- **TerminalStyle** Interface - (https://github.com/orcun-gokbulut/terminal-styler#terminalstyle-object)
 
-*styleEnabled* [optional, default: 4]: Enable output styles.
-
-*uppercase* [optional, default: true]: Output hex numbers upper case.
-
-*newLineCharacter* [optional, default: '\n']: New line character that will be added at the end of each row.
-
-*offsetEnabled* [optional, default: true]: Enable Offset Section.
-
-*offsetStyle* [optional, default: DefaultStyle]: Style and formatting of Offset Section. (Checkout Style object)
-
-*offsetSeparator* [optional, default: ':']: Character that separates upper and lower 16bits of offset.
-
-*offsetHexSeparator* [optional, default: ' | ']: Separator text between Offset Section and Hex Section.
-
-*offsetHexSeperatorStyle* [optional, default: defaultStyle]: Style of the separator text between Offset Section and Hex Section.
-
-*hexEnabled* [optional, default: true]: Enable Hex Section output.
-
-*hexWordSeparator* [optional, default: ' ']: Separator text that will be used to separate words.
-
-*hexGroupSeparator* [optional, default: ' ']: Separator text that will be used to separate groups.
-
-*hexStyle* [optional, default: defaultStyle]: Style of Hex Section. (Checkout Style object)
-
-*hexTextSeparator* [optional, default: ' | ']: Separator text between Hex Section and Text Section.
-
-*hexTextSeparatorStyle* [optional, default: defaultStyle]: Style of the separator text between Hex Section and Text Section.
-
-*textEnabled* [optional, default: true]: Enable Text Section.
-
-*textStyle* [optional, default: defaultStyle]: Style of the Text Section. (Checkout Style Object)
-
-*textWordSeparator* [optional, default: ' ']: Separator text that will be used to separate words.
-
-*textGroupSeparator* [optional, default: ' ']: Separator text that will be used to separate groups.
-
-*textUnrenderableCharacter* [optional, default: '·']: Placeholder character for unrenderable characters. Such as newline, backspace, null, bell, etc.
-
-*textUnrenderableCharacterStyle* [optional, default: dimTextStyle]: Style of the unrenderable chracters.
-
-### Color enumurator
-```typescript
-export enum Color
-{
-    default = -1,
-    black   = 0,
-    red     = 1,
-    green   = 2,
-    yellow  = 3,
-    blue    = 4,
-    magenta = 5,
-    cyan    = 6,
-    white   = 7,
-    gray    = 8
-};
-```
-
-#### Description
-Color enumerator which is used in Style object. Default value means do not change current terminal color use it instead.
-
-### Style object
-```typescript
-export interface Style {
-    foregroundColor?: Color;
-    backgroundColor?: Color;
-    dim?: boolean;
-    bold?: boolean;
-    italic?: boolean;
-    underline?: boolean;
-    strike?: boolean;
-    inverse?: boolean;
-}
-```
-
-#### Description
-Style object describes how to style and format (font attributes, colors) output. It is used in Options object for various setting style and format of various output elements.
-
-Smart defaults are already enforced when you pass this object to one of Options objects property. Therefore you can create this object and only define the options that you want to change, then assign it to one of the Options objects property.
-
-#### Members
-
-*foregroundColor* [optional, dont change]: Sets text color of the output.
-
-*backgroundColor* [optional, default: dont change]: Sets backgroud color of the output.
-
-*dim* [optional, default: false]: Darkens text color of the output.
-
-*bold* [optional, default: false]: Sets output **bold**.
-
-*underline* [optional, default: false]: Sets output <u>underlined</u>.
-
-*strike* [optional, default: false]: Sets output ~~strikethroughed~~.
-
-*inverse* [optional, default: false]: Inverts color of the output.
-
-## Advanced Usage Example
+# Advanced Usage Example
 Advanced  usage with lots of customization;
 ```typescript
 //Advanced
-import { Color, hexDump, Options } from "hex-dump";
+import { hexDump, BufferHexDumpOptions } from "hex-dump";
+import { TerminalColor } from "terminal-style";
 
 function onData(data : Buffer) : void
 {
     Log.trace("PacketManager.onData()", [data]);
     Log.debug(() => {
-        let hexDumpOptions : Options = {
+        let hexDumpOptions : BufferHexDumpOptions = {
             hexEnabled: true,
             textEnabled: true,
             wordSize: 1,
@@ -249,55 +191,55 @@ function onData(data : Buffer) : void
             offsetHexSeparator: "-",
             offsetHexSeperatorStyle:
             {
-                backgroundColor: Color.yellow
+                backgroundColor: TerminalColor.yellow
             },
             hexTextSeparator: "*",
             hexTextSeparatorStyle:
             {
-                backgroundColor: Color.magenta
+                backgroundColor: TerminalColor.magenta
             },
 
             textWordSeparator: "",
             textStyle:
             {
-                backgroundColor: Color.blue,
-                foregroundColor: Color.white
+                backgroundColor: TerminalColor.blue,
+                foregroundColor: TerminalColor.white
             },
             textUnrenderableCharacterStyle:
             {
-                backgroundColor: Color.blue,
+                backgroundColor: TerminalColor.blue,
                 dim: true
             },
             offsetStyle:
             {
-                backgroundColor: Color.green,
-                foregroundColor: Color.white,
+                backgroundColor: TerminalColor.green,
+                foregroundColor: TerminalColor.white,
                 bold: true
             },
             hexStyle:
             {
-                foregroundColor: Color.white,
-                backgroundColor: Color.red
+                foregroundColor: TerminalColor.white,
+                backgroundColor: TerminalColor.red
             }
         };
 
-        return "Raw Data Received:\n" + hexDump(data, undefined, undefined, hexDumpOptions) + "\n";
+        return "Raw Data Received:\n" + BufferHexDump.dump(data, undefined, undefined, hexDumpOptions) + "\n";
     }
 }
 ```
 
-## Author
+# Author
 
 👤 **Y. Orçun GÖKBULUT**
 
 * Github: [@orcun-gokbulut](https://github.com/orcun-gokbulut)
 * E-mail: orcun.gokbulut@gmail.com
 
-## 🤝 Contributing
-Contributions, issues and feature requests are welcome!<br />Feel free to check [issues page](https://github.com/orcun-gokbulut/hex-dump/issues). You can also take a look at the [contributing guide](https://github.com/orcun-gokbulut/hex-dump/blob/master/CONTRIBUTING.md).
+# 🤝 Contributing
+Contributions, issues and feature requests are welcome!<br />Feel free to check [issues page](https://github.com/orcun-gokbulut/buffer-hex-dump/issues). You can also take a look at the [contributing guide](https://github.com/orcun-gokbulut/buffer-hex-dump/blob/master/CONTRIBUTING.md).
 
-## 📝 License
+# 📝 License
 Copyright © 2022 [Y. Orçun GÖKBULUT](https://github.com/orcun-gokbulut).<br />
-This project is [GPL--3.0](https://github.com/orcun-gokbulut/hex-dump/blob/master/LICENSE) licensed.
+This project is [GPL--3.0](https://github.com/orcun-gokbulut/buffer-hex-dump/blob/master/LICENSE) licensed.
 <br>
 <br>

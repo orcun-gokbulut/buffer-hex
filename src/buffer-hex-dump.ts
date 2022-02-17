@@ -1,33 +1,6 @@
-import { TextStream } from './text-stream';
+import { TerminalStylerStream, TerminalStyle, TerminalColor } from "terminal-styler";
 
-export enum Color
-{
-    default = -1,
-    black   = 0,
-    red     = 1,
-    green   = 2,
-    yellow  = 3,
-    blue    = 4,
-    magenta = 5,
-    cyan    = 6,
-    white   = 7,
-    gray    = 8
-};
-
-export interface Style
-{
-    foregroundColor? : Color;
-    backgroundColor? : Color;
-
-    dim? : boolean;
-    bold? : boolean;
-    italic? : boolean;
-    underline? : boolean;
-    strike? : boolean;
-    inverse? : boolean;
-}
-
-export interface Options
+export interface BufferHexDumpOptions
 {
     // GLOBAL
     rowSize? : number;
@@ -40,49 +13,49 @@ export interface Options
 
     // OFFSET COLUMN
     offsetEnabled? : boolean;
-    offsetStyle? : Style;
+    offsetStyle? : TerminalStyle;
     offsetSeparator? : string;
 
 
     // OFFSET <-> HEX SEPERATOR
     offsetHexSeparator? : string;
-    offsetHexSeperatorStyle? : Style;
+    offsetHexSeperatorStyle? : TerminalStyle;
 
 
     // HEX COLUMNS
     hexEnabled? : boolean;
     hexWordSeparator? : string;
     hexGroupSeparator? : string;
-    hexStyle? : Style;
+    hexStyle? : TerminalStyle;
 
 
     // HEX <-> TEXT SEPARATOR
     hexTextSeparator? : string;
-    hexTextSeparatorStyle? : Style;
+    hexTextSeparatorStyle? : TerminalStyle;
 
 
     // TEXT COLUMNS
     textEnabled? : boolean;
-    textStyle? : Style;
+    textStyle? : TerminalStyle;
     textWordSeparator? : string;
     textGroupSeparator? : string;
     textUnrenderableCharacter? : string;
-    textUnrenderableCharacterStyle? : Style;
+    textUnrenderableCharacterStyle? : TerminalStyle;
 };
 
-function normalizeStyle(style? : Style) : Style
+function normalizeStyle(style? : TerminalStyle) : TerminalStyle
 {
-    let normStyle : Style;
+    let normStyle : TerminalStyle;
     if (style === undefined)
         normStyle = {};
     else
-        normStyle = Object.create(style) as Style;
+        normStyle = Object.create(style) as TerminalStyle;
 
     if (normStyle.foregroundColor === undefined)
-        normStyle.foregroundColor = Color.default;
+        normStyle.foregroundColor = TerminalColor.default;
 
     if (normStyle.backgroundColor === undefined)
-        normStyle.backgroundColor = Color.default;
+        normStyle.backgroundColor = TerminalColor.default;
 
     if (normStyle.dim === undefined)
         normStyle.dim = false;
@@ -105,13 +78,13 @@ function normalizeStyle(style? : Style) : Style
     return normStyle;
 }
 
-function normalizeOptions(options? : Options) : Options
+function normalizeOptions(options? : BufferHexDumpOptions) : BufferHexDumpOptions
 {
-    let normOptions : Options;
+    let normOptions : BufferHexDumpOptions;
     if (options === undefined)
         normOptions = {};
     else
-        normOptions = Object.create(options) as Options;
+        normOptions = Object.create(options) as BufferHexDumpOptions;
 
 
     // GENERAL
@@ -195,117 +168,121 @@ function normalizeOptions(options? : Options) : Options
     return normOptions;
 }
 
-export function dump(buffer : Buffer, offset? : number, count? : number, options? : Options) : string
+export class BufferHexDump
 {
-    const normOptions = normalizeOptions(options);
 
-    const output = new TextStream();
-
-    const rowCount = buffer.length / normOptions.rowSize!;
-    for (let y = 0; y < rowCount; y++)
+    public static dump(buffer : Buffer, offset? : number, count? : number, options? : BufferHexDumpOptions) : string
     {
-        // OFFSET
-        if (normOptions.offsetEnabled!)
+        const normOptions = normalizeOptions(options);
+
+        const output = new TerminalStylerStream();
+
+        const rowCount = buffer.length / normOptions.rowSize!;
+        for (let y = 0; y < rowCount; y++)
         {
-            const offset = y * normOptions.rowSize!;
-            const offsetUpper = Math.floor(offset / 256);
-            const offsetLower = offset - offsetUpper;
-
-            let offsetOutput = "";
-
-            let offsetText = offsetUpper.toString(8).padStart(4, '0');
-            if (normOptions.uppercase!)
-                offsetText = offsetText.toUpperCase();
-            offsetOutput += offsetText;
-
-            offsetOutput += normOptions.offsetSeparator!;
-
-            offsetText = offsetLower.toString(16).padStart(4, '0');
-            if (normOptions.uppercase)
-                offsetText = offsetText.toUpperCase();
-            offsetOutput += offsetText;
-
-            output.write(offsetOutput, normOptions.offsetStyle!);
-        }
-
-        // OFFSET HEX SEPARATOR
-        if (normOptions.offsetEnabled! && (normOptions.hexEnabled! || normOptions.textEnabled!))
-            output.write(normOptions.offsetHexSeparator!, normOptions.offsetHexSeperatorStyle!);
-
-
-        // HEX
-        if (normOptions.hexEnabled!)
-        {
-            let hexOutput = "";
-            for (let x = 0; x < normOptions.rowSize!; x++)
+            // OFFSET
+            if (normOptions.offsetEnabled!)
             {
-                if (x !== 0)
-                {
-                    if (normOptions.wordSize! !== 0 && (x % normOptions.wordSize!) === 0)
-                        hexOutput += normOptions.hexWordSeparator!;
+                const offset = y * normOptions.rowSize!;
+                const offsetUpper = Math.floor(offset / 256);
+                const offsetLower = offset - offsetUpper;
 
-                    if (normOptions.groupSize !== 0 && ((x / (normOptions.wordSize!)) % normOptions.groupSize!) === 0)
-                        hexOutput += normOptions.hexGroupSeparator!;
-                }
+                let offsetOutput = "";
 
-                const index = y * normOptions.rowSize! + x;
-                const value = buffer[index] as number;
-                if (index < buffer.length)
+                let offsetText = offsetUpper.toString(8).padStart(4, '0');
+                if (normOptions.uppercase!)
+                    offsetText = offsetText.toUpperCase();
+                offsetOutput += offsetText;
+
+                offsetOutput += normOptions.offsetSeparator!;
+
+                offsetText = offsetLower.toString(16).padStart(4, '0');
+                if (normOptions.uppercase)
+                    offsetText = offsetText.toUpperCase();
+                offsetOutput += offsetText;
+
+                output.write(offsetOutput, normOptions.offsetStyle!);
+            }
+
+            // OFFSET HEX SEPARATOR
+            if (normOptions.offsetEnabled! && (normOptions.hexEnabled! || normOptions.textEnabled!))
+                output.write(normOptions.offsetHexSeparator!, normOptions.offsetHexSeperatorStyle!);
+
+
+            // HEX
+            if (normOptions.hexEnabled!)
+            {
+                let hexOutput = "";
+                for (let x = 0; x < normOptions.rowSize!; x++)
                 {
-                    if (normOptions.uppercase!)
-                        hexOutput += value.toString(16).toUpperCase().padStart(2, '0');
+                    if (x !== 0)
+                    {
+                        if (normOptions.wordSize! !== 0 && (x % normOptions.wordSize!) === 0)
+                            hexOutput += normOptions.hexWordSeparator!;
+
+                        if (normOptions.groupSize !== 0 && ((x / (normOptions.wordSize!)) % normOptions.groupSize!) === 0)
+                            hexOutput += normOptions.hexGroupSeparator!;
+                    }
+
+                    const index = y * normOptions.rowSize! + x;
+                    const value = buffer[index] as number;
+                    if (index < buffer.length)
+                    {
+                        if (normOptions.uppercase!)
+                            hexOutput += value.toString(16).toUpperCase().padStart(2, '0');
+                        else
+                            hexOutput += value.toString(16).padStart(2, '0');
+                    }
                     else
-                        hexOutput += value.toString(16).padStart(2, '0');
+                    {
+                        if (normOptions.textEnabled!)
+                            hexOutput += "  ";
+                        else
+                            break;
+                    }
                 }
-                else
+                output.write(hexOutput, normOptions.hexStyle!);
+            }
+
+
+            // HEX TEXT SEPARATOR
+            if (normOptions.hexEnabled! && normOptions.textEnabled!)
+                output.write(normOptions.hexTextSeparator!, normOptions.hexTextSeparatorStyle!);
+
+
+            // TEXT
+            if (normOptions.textEnabled!)
+            {
+                for (let x = 0; x < normOptions.rowSize!; x++)
                 {
-                    if (normOptions.textEnabled!)
-                        hexOutput += "  ";
+                    if (x !== 0)
+                    {
+                        if (normOptions.wordSize! !== 0 && (x % normOptions.wordSize!) === 0)
+                            output.write(normOptions.textWordSeparator!, normOptions.textStyle!);
+
+                        if (normOptions.groupSize !== 0 && ((x / (normOptions.wordSize!)) % normOptions.groupSize!) === 0)
+                            output.write(normOptions.textGroupSeparator!, normOptions.textStyle!);
+                    }
+
+                    const index = y * normOptions.rowSize! + x;
+
+                    let value : number;
+                    if (index < buffer.length)
+                        value = buffer[index] as number;
                     else
-                        break;
+                        value = 32; // Space
+
+                    if (value < 32 || value >= 127)
+                        output.write(normOptions.textUnrenderableCharacter!, normOptions.textUnrenderableCharacterStyle!);
+                    else
+                        output.write(String.fromCharCode(value), normOptions.textStyle!);
                 }
             }
-            output.write(hexOutput, normOptions.hexStyle!);
+
+            if (y + 1 !== rowCount)
+                output.write(normOptions.newLineCharacter!, null);
         }
 
-
-        // HEX TEXT SEPARATOR
-        if (normOptions.hexEnabled! && normOptions.textEnabled!)
-            output.write(normOptions.hexTextSeparator!, normOptions.hexTextSeparatorStyle!);
-
-
-        // TEXT
-        if (normOptions.textEnabled!)
-        {
-            for (let x = 0; x < normOptions.rowSize!; x++)
-            {
-                if (x !== 0)
-                {
-                    if (normOptions.wordSize! !== 0 && (x % normOptions.wordSize!) === 0)
-                        output.write(normOptions.textWordSeparator!, normOptions.textStyle!);
-
-                    if (normOptions.groupSize !== 0 && ((x / (normOptions.wordSize!)) % normOptions.groupSize!) === 0)
-                        output.write(normOptions.textGroupSeparator!, normOptions.textStyle!);
-                }
-
-                const index = y * normOptions.rowSize! + x;
-
-                let value : number;
-                if (index < buffer.length)
-                    value = buffer[index] as number;
-                else
-                    value = 32; // Space
-
-                if (value < 32 || value >= 127)
-                    output.write(normOptions.textUnrenderableCharacter!, normOptions.textUnrenderableCharacterStyle!);
-                else
-                    output.write(String.fromCharCode(value), normOptions.textStyle!);
-            }
-        }
-
-        if (y + 1 !== rowCount)
-            output.write(normOptions.newLineCharacter!, null);
+        return output.end();
     }
-
-    return output.end();
 }

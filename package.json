@@ -11,13 +11,13 @@
     "license": "GPL-3.0",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/orcun-gokbulut/hex-dump.git"
+        "url": "git+https://github.com/orcun-gokbulut/buffer-hex-dump.git"
     },
     "bugs": {
-        "url": "https://github.com/orcun-gokbulut/hex-dump/issues",
+        "url": "https://github.com/orcun-gokbulut/buffer-hex-dump/issues",
         "email": "orcun.gokbulut@gmail.com"
     },
-    "homepage": "https://github.com/orcun-gokbulut/hex-dump#readme",
+    "homepage": "https://github.com/orcun-gokbulut/buffer-hex-dump#readme",
     "keywords": [
         "hex",
         "dump"
@@ -25,27 +25,36 @@
     "main": "dist/buffer-hex-dump.js",
     "files": [
         "dist/buffer-hex-dump.js",
-        "dist/buffer-hex-dump.d.ts",
-        "dist/text-stream.js",
-        "dist/text-stream.d.ts"
+        "dist/buffer-hex-dump.d.ts"
     ],
     "scripts": {
+        "start": "npm run test",
+        "prepack": "npm run bootstrap",
+        "prepare": "npm run build",
         "bootstrap": "npm install",
         "bootstrap-prod": "npm install --production",
         "build": "tsc",
         "build-dev": "tsc -p tsconfig.debug.json",
+        "build-test": "tsc -p tsconfig.test.json",
         "lint": "eslint src --ext ts",
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "test": "ts-mocha -p tsconfig.test.json src/**/**.test.ts",
         "clean": "rm -rfv ./dist/*",
         "purge": "rm -rfv ./dist && rm -rfv ./node_modules && rm -fv package-lock.json"
     },
     "dependencies": {
-        "colors": "^1.4.0"
+        "colors": "^1.4.0",
+        "terminal-styler": "^1.0.0"
     },
     "devDependencies": {
+        "@types/chai": "^4.3.0",
+        "@types/expect": "^24.3.0",
+        "@types/mocha": "^9.1.0",
         "@types/node": "^17.0.8",
         "@typescript-eslint/eslint-plugin": "^5.10.1",
         "@typescript-eslint/parser": "^5.10.1",
-        "eslint": "^8.7.0"
+        "chai": "^4.3.6",
+        "eslint": "^8.7.0",
+        "ts-mocha": "^9.0.2",
+        "typescript": "^4.5.5"
     }
 }

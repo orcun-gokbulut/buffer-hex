@@ -8,12 +8,17 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/src/hex-dump.ts",
+            "program": "${workspaceFolder}/node_modules/ts-mocha/bin/ts-mocha",
+            "args": [
+                "-p", "tsconfig.test.json",
+                "src/**/**.test.ts"
+            ],
+            "cwd": "${workspaceFolder}",
+            "sourceMaps": true,
             "outFiles": [
-                "${workspaceFolder}/build/**/*.js"
+                "${workspaceFolder}/dist/**/*.js"
             ],
             "console": "integratedTerminal",
-            "preLaunchTask": "Build"
         }
     ]
 }
